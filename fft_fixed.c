@@ -8,8 +8,6 @@ struct complex
 {
 	int real;
 	int img;
-	// double real;
-	// double img;
 };
 
 int log_2(int x)
@@ -74,44 +72,33 @@ struct complex make_complex(int input)
 	return cmplx;
 }
 
-struct complex complex_power(struct complex w , int power)
-{
-	struct complex ans;
-	ans.real = 1 * (1 << deci_bits);
-	ans.img = 0 * (1 << deci_bits);
-	if(power == 0)	return ans;
-	else
-	{
-		ans = w;
-		for(int i = 1 ; i<power;i++)
-		{
-			ans = complex_multiply(ans , w);
-		}
-		return ans;
-	}
-}
-
 struct complex* fft(struct complex* a,int  n ,struct complex w)
 {
 	if(n == 1)	return a;
 	else
 	{
 		struct complex *a_even , *a_odd , *output;
-	    a_even = (struct complex *)malloc(n/2 * sizeof(struct complex));
-	    a_odd = (struct complex *)malloc(n/2 * sizeof(struct complex));
-	    output = (struct complex *)malloc(n * sizeof(struct complex));
+    a_even = (struct complex *)malloc(n/2 * sizeof(struct complex));
+    a_odd = (struct complex *)malloc(n/2 * sizeof(struct complex));
+    output = (struct complex *)malloc(n * sizeof(struct complex));
+		struct complex wn;
+		wn.real = 1 * (1 << deci_bits);
+		wn.img = 0;
 
 		for(int i = 0 ; i < n/2 ; i++)
 		{
 			a_even[i] = a[2*i];
 			a_odd[i] = a[2*i + 1];
 		}
-		a_even = fft(a_even , n/2 , complex_power(w , 2));
-		a_odd = fft(a_odd , n/2 , complex_power(w , 2));
+		a_even = fft(a_even , n/2 , complex_multiply(w , w));
+		a_odd = fft(a_odd , n/2 , complex_multiply(w , w));
 		for(int k = 0 ; k<n/2 ; k++)
 		{
-			output[k] = complex_add(a_even[k] , complex_multiply( complex_power(w , k) , a_odd[k]));
-			output[k + (n/2)] = complex_subtract(a_even[k] , complex_multiply( complex_power(w , k) , a_odd[k]));
+			// output[k] = complex_add(a_even[k] , complex_multiply( complex_power(w , k) , a_odd[k]));
+			// output[k + (n/2)] = complex_subtract(a_even[k] , complex_multiply( complex_power(w , k) , a_odd[k]));
+			output[k] = complex_add(a_even[k] , complex_multiply( wn , a_odd[k]));
+			output[k + (n/2)] = complex_subtract(a_even[k] , complex_multiply( wn , a_odd[k]));
+			wn = complex_multiply(w, wn);
 		}
 		return output;
 	}
