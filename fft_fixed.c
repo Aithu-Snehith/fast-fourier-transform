@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 int bits = 16, int_bits = 0,deci_bits = 0;
 
@@ -86,7 +85,7 @@ struct complex make_complex(int x , int y)
 // finding fft using ‎Cooley–Tukey FFT algorithm
 struct complex* fft(struct complex* a,int  n)
 {
-	if(n == 1)	return a;
+	if(n == 1)	return a;	//one-point dft of a number is itself
 	else
 	{
 		struct complex *a_even , *a_odd , *output;
@@ -94,11 +93,13 @@ struct complex* fft(struct complex* a,int  n)
     a_odd = (struct complex *)malloc(n/2 * sizeof(struct complex));
     output = (struct complex *)malloc(n * sizeof(struct complex));
 
+		//seperating odd and even terms
 		for(int i = 0 ; i < n/2 ; i++)
 		{
 			a_even[i] = a[2*i];
 			a_odd[i] = a[2*i + 1];
 		}
+		// calling he function recursively
 		a_even = fft(a_even , n/2);
 		a_odd = fft(a_odd , n/2);
 		for(int k = 0 ; k<n/2 ; k++)
@@ -106,15 +107,12 @@ struct complex* fft(struct complex* a,int  n)
 			output[k] = complex_add(a_even[k] , complex_multiply( w_fixed[k*64/n] , a_odd[k]));
 			output[k + (n/2)] = complex_subtract(a_even[k] , complex_multiply( w_fixed[k*64/n] , a_odd[k]));
 		}
-		return output;
+		return output;	//returning the output
 	}
 }
 
 int main()
 {
-	// input
-	// double input_float_real[] = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6};
-	// double input_float_img[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	double input_float_real[] = { 0.92670136, 0.92526534, 1.06134841, -0.8881673, 0.0970546, 1.89288216, -0.15537744, 0.17452029, -1.16409703, -0.62238235, 1.73710805, 0.87225893, 1.68857848, 2.19616514, 0.92045271, 1.81368249, 1.76766088, 2.37320675, 0.12441137, 0.69430363, 4.10958044, 2.9494473, 0.98999581, 1.86393524, 0.94992101, 0.58780095, 1.65149978, 1.48801442, -0.76901673, -0.38560469, -0.27367721, 1.07830558, 0.41459356, 0.51731829, 1.51016401, 1.8491849, 1.80154993, -0.17776092, 0.80802265, -0.77624968, 1.13077533, 1.41831872, 1.49171826, 1.66977257, 1.70925721, 1.15018871, 0.44849218, 2.45037054, 2.11556392, -0.95568807, 3.02255698, 1.78621665, -0.69232579, 0.77796521, 3.26874094, 0.17147518, 2.47544443, -0.01667211, 1.05575585, 1.98515679, 1.97223382, 2.0646376, -0.80155675, 1.25385524 };
 	double input_float_img[] = { 0.65980587, 1.83689466, 0.64897778, 1.35691023, 0.75463888, 0.45913017, 0.58907004, -1.21947475, 2.23889855, 1.53966982, 0.37422832, -0.08597866, 0.20838714, 2.17532383, -0.2233321, 1.56531937, 2.63987056, 1.51840256, 1.57200803, 0.24761504, -0.35231468, 1.63810255, 0.8283496, 1.20943272, 2.11829619, 1.23173226, 0.64046625, -1.18849812, 1.72744721, 1.09235085, 3.28064847, 1.38242922, 1.40439443, 1.63716572, 1.87952573, 0.72300287, 1.25325819, 0.42500207, -0.76676234, 0.76137775, 0.98722207, 2.14538474, 0.37760292, 2.46963168, 1.10771446, 1.80038362, 1.33840776, 2.10510554, -1.10364182, 1.08624815, 0.02671055, 3.91015891, 0.86348538, 1.9817514, 1.82263764, 0.5383923, 0.78279545, 1.06524052, 1.58682072, 1.51115433, 1.53869124, 1.41987451, 0.51629822, 1.25623659};
 
@@ -123,7 +121,7 @@ int main()
 	int n = (int)(sizeof(input_float_real)/sizeof(double));
 	int *input_fixed_real = (int *)malloc(n * sizeof(int));
 	int *input_fixed_img = (int *)malloc(n * sizeof(int));
-	printf("Size of the given array is %d\n", n);
+	printf("Length of input: %d\n", n);
 
 	// finding q format
 	temp = input_float_real[0];
@@ -170,6 +168,8 @@ int main()
 		output_float_img[i] = (output_fixed[i].img / (double)(1 << deci_bits));
 	}
 
+	printf("output:\n");
+	printf("fixed point		floating point\n");
 	// printing the outputs
 	for(int i = 0 ; i < n ; i++)
 	{
